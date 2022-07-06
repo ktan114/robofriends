@@ -10,6 +10,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 const AppHooks = () => {
   const [robots, setRobots] = useState([]);
   const [searchField, setSearchField] = useState('');
+  const [count, setCount] = useState(0);
 
   const onSearchChange = (event) => {
     setSearchField(event.target.value);
@@ -29,6 +30,7 @@ const AppHooks = () => {
   ) : (
     <div className="tc">
       <h1 className="f1">RoboFriends</h1>
+      <button onClick={() => setCount(count + 1)}>Click Me: {count}</button>
       <SearchBox searchField={searchField} searchChange={onSearchChange} />
       <Scroll>
         <ErrorBoundary>
