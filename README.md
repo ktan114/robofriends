@@ -1,3 +1,11 @@
+# Redux
+
+- Actions ->(Middleware)-> Reducers -> Store -> Make Changes
+- Actions: gets dispatched to a reducer
+- Middleware: listens to actions, goes through a tunnel, they are triggers that act before it hits reducer
+- Reducers: takes the action to make changes to state on the store
+- Store: Updates data and passes to Make Changes to the view
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
