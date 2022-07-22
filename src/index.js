@@ -1,15 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
+import { createLogger } from 'redux-logger';
+import thunkMiddleware from 'redux-thunk';
 import 'tachyons';
-import { searchRobots } from './reducers';
+import { searchRobots, requestRobots } from './reducers';
 
 import reportWebVitals from './reportWebVitals';
 import './index.css';
 import App from './containers/App';
 
-const store = createStore(searchRobots);
+const rootReducer = combineReducers({ searchRobots, requestRobots });
+
+/* Middleware goes in order
+  Redux-Thunk handle async actions, side effects
+  Checks if an action returns a function instead of an object
+  Logger catches actions of previous state, action, next state
+*/
+const logger = createLogger();
+const store = createStore(
+  rootReducer,
+  applyMiddleware(thunkMiddleware, logger),
+);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
