@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React /*, { useState, useEffect }*/ from 'react';
 import { connect } from 'react-redux';
 
 import './App.css';
@@ -8,20 +8,64 @@ import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
 import ErrorBoundary from '../components/ErrorBoundary';
 
-import { setSearchField } from '../actions';
+import { requestRobots, setSearchField } from '../actions';
 
 const mapStateToProps = (state) => {
   return {
-    searchField: state.searchField,
+    searchField: state.searchRobots.searchField,
+    robots: state.requestRobots.robots,
+    isPending: state.requestRobots.isPending,
+    error: state.requestRobots.error,
   };
 };
 
 // Send actions to the reducer
+// Async actions, need dispatch to be passed to the action
+//  dispatch(requestRobots()) is the same as requestRobots(dispatch) using redux-thunx
 const mapDispatchToProps = (dispatch) => {
   return {
     onSearchChange: (event) => dispatch(setSearchField(event.target.value)),
+    onRequestRobots: () => dispatch(requestRobots()),
   };
 };
+
+class App extends React.Component {
+  constructor() {
+    super();
+    // this.state = {
+    //   // robots: [],
+    // };
+  }
+
+  componentDidMount() {
+    this.props.onRequestRobots();
+  }
+  render() {
+    const { searchField, onSearchChange, robots, isPending } = this.props;
+    const filteredRobots = robots.filter((robot) =>
+      robot.name.toLowerCase().includes(searchField.toLowerCase()),
+    );
+    return isPending ? (
+      <h1>Loading...</h1>
+    ) : (
+      <div className="tc">
+        <h1 className="f1">RoboFriends</h1>
+        <SearchBox searchField={searchField} searchChange={onSearchChange} />
+        <Scroll>
+          <ErrorBoundary>
+            <CardList robots={filteredRobots} />
+          </ErrorBoundary>
+        </Scroll>
+      </div>
+    );
+  }
+}
+
+// Subscribe to any state changes in the Redux store
+// connect(stateProps, dispatchToProps)
+// stateProps - which part of state this component cares about
+// dispatchToProps - maps the actions to this component
+export default connect(mapStateToProps, mapDispatchToProps)(App);
 
 // const AppHooks = () => {
 //   const [robots, setRobots] = useState([]);
@@ -57,44 +101,4 @@ const mapDispatchToProps = (dispatch) => {
 //   );
 // };
 
-class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      robots: [],
-    };
-  }
-
-  componentDidMount() {
-    fetch('https://jsonplaceholder.typicode.com/users')
-      .then((response) => response.json())
-      .then((users) => this.setState({ robots: users }));
-  }
-  render() {
-    const { robots } = this.state;
-    const { searchField, onSearchChange } = this.props;
-    const filteredRobots = robots.filter((robot) =>
-      robot.name.toLowerCase().includes(searchField.toLowerCase()),
-    );
-    return !robots.length ? (
-      <h1>Loading...</h1>
-    ) : (
-      <div className="tc">
-        <h1 className="f1">RoboFriends</h1>
-        <SearchBox searchField={searchField} searchChange={onSearchChange} />
-        <Scroll>
-          <ErrorBoundary>
-            <CardList robots={filteredRobots} />
-          </ErrorBoundary>
-        </Scroll>
-      </div>
-    );
-  }
-}
-
-// Subscribe to any state changes in the Redux store
-// connect(stateProps, dispatchToProps)
-// stateProps - which part of state this component cares about
-// dispatchToProps - maps the actions to this component
-export default connect(mapStateToProps, mapDispatchToProps)(App);
 // export default connect(mapStateToProps, mapDispatchToProps)(AppHooks);
